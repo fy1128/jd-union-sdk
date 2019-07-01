@@ -28,12 +28,23 @@ class JdGateWay
      */
     protected $apithId;
     protected $apithKey;
+
+    /**
+     * @api https://open.21ds.cn/index/index/openapi/id/1.shtml?ptype=2
+     * @var mixed|string
+     */
+    protected $apKey;
+
+    /**
+     * @api
+     * @var mixed
+     */
     /**
      * 是否需要申请权限
      */
     protected $is_auth = false;
+    protected $authUrl;
     const URL = 'https://router.jd.com/api?';
-    const AUTH_URL = 'https://jd.vip.apith.cn/unionv2/';
 
     /**
      * @var JdFatory
@@ -64,6 +75,19 @@ class JdGateWay
         $this->pid = $config['unionId'] . '_' . $config['siteId'] . '_' . $config['positionId'];
         $this->jdFatory = $jdFatory;
         $this->isCurl = isset($config['isCurl']) && ($config['isCurl'] == true) ? true : false;
+        $this->apiAltType = 'apith';
+        $this->authUrl = 'https://jd.vip.apith.cn/unionv2/';
+        if (isset($config['apiAltType'])) {
+            switch ($config['apiAltType']) {
+                case '21ds':
+                    $this->tods = $config['tods'];
+                    $this->apKey = isset($this->tods['apKey']) ? $this->tods['apKey'] : '';
+                    $this->authUrl = 'https://api.open.21ds.cn/jd_api_v1/';
+                    $this->todsOpUrl = 'https://api.open.21ds.cn/op_api_v1/';
+                    $this->apiAltType = '21ds';
+                    break;
+            }
+        }
     }
 
     protected function setError($message)
@@ -170,8 +194,15 @@ class JdGateWay
     {
         $header = [];
         if ($this->is_auth === true) {
-            $url = self::AUTH_URL . $method . '?' . http_build_query($specialParameter);
-            $header = self::setVipParameter($url);
+            if ($this->apiAltType = '21ds') {
+                $specialParameter['apkey'] = $this->apKey;
+                if (in_array($method, $this->tods['opApis'])) {
+                    $this->authUrl = $this->todsOpUrl;
+                }
+            } elseif ($this->apiAltType = '21ds') {
+                $header = self::setVipParameter($url);
+            }
+            $url = $this->authUrl . $method . '?' . http_build_query($specialParameter);
         } else {
             $str = self::setParameter($method, $specialParameter);
             $url = self::URL . $str;
@@ -200,7 +231,11 @@ class JdGateWay
             if ($raw == true) {
                 return $decodeObject;
             }
-            if ($decodeObject['code'] != 1) {
+            if ($this->apiAltType == 'apith' && $decodeObject['code'] != 1) {
+                $this->setError($decodeObject['msg']);
+                return false;
+            }
+            if ($this->apiAltType == '21ds' && $decodeObject['code'] != 200) {
                 $this->setError($decodeObject['msg']);
                 return false;
             }
