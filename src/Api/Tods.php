@@ -55,6 +55,23 @@ class Tods extends JdGateWay
     }
 
     /**
+    * @api (新版)获取推广商品信息接口
+    * @line https://open.21ds.cn/index/index/openapi/id/24.shtml?ptype=2
+    * @param string $skuids
+    * @return bool|string
+    * @throws \Exception
+    */
+
+    public function getTgItemInfo($skuids)
+    {
+
+        $params['skuids'] =  $skuids;
+
+        return $this->send('gettgiteminfo', $params, true);
+
+    }
+
+    /**
      * @api (新版)获取商品推广链接
      * @line https://open.21ds.cn/index/index/openapi/id/56.shtml?ptype=2
      * @param string $url
