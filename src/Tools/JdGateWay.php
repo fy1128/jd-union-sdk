@@ -243,7 +243,7 @@ class JdGateWay
         } else {
             $nowLists = current($decodeObject);
             if ($nowLists['code'] != 0) {
-                return $this->setError(isset($nowLists['msg']) ? $nowLists['msg'] : '错误信息');
+                return $this->setError(isset($nowLists['msg']) ? $nowLists['msg'] : (isset($nowLists['zh_desc']) ? $nowLists['zh_desc'] : '错误信息'));
             }
             $finally = json_decode($nowLists['result'], true);
             if ($finally['code'] != 200) {
