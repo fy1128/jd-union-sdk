@@ -202,4 +202,29 @@ class Good extends JdGateWay
 
         return $result;
     }
+
+    /**
+     * @api 获取商品基本信息
+     * @line http://open.jd.com/home/home#/doc/api?apiCateId=49&apiId=1038&apiName=jingdong.new.ware.baseproduct.get
+     * @param $skuIds
+     * @param $basefields
+     * @return bool|string
+     * @throws \Exception
+     */
+    public function jdInfo($skuIds, $basefields)
+    {
+        if (is_array($skuIds)) {
+            $skuIds = implode(',', $skuIds);
+        }
+        if (is_array($basefields)) {
+            $basefields = implode(',', $basefields);
+        }
+        $params = [
+            'ids' => $skuIds,
+            'basefields' => $basefields
+        ];
+        $result = $this->send('jingdong.new.ware.baseproduct.get', $params, true);
+        return $result;
+    }
+
 }

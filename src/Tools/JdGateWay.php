@@ -220,7 +220,7 @@ class JdGateWay
      */
     private function parseReps($result, $raw = false)
     {
-        $decodeObject = json_decode($result, true);
+        $decodeObject = json_decode(preg_replace('/\r|\n/','\n',trim($result)), true);
         if (is_string($decodeObject)) {
             return $this->setError($decodeObject);
         }
